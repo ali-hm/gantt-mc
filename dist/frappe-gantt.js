@@ -1,17 +1,17 @@
 var Gantt = (function () {
     'use strict';
 
-    const YEAR = 'year';
-    const MONTH = 'month';
-    const DAY = 'day';
-    const HOUR = 'hour';
-    const MINUTE = 'minute';
-    const SECOND = 'second';
-    const MILLISECOND = 'millisecond';
+    const YEAR$1 = 'year';
+    const MONTH$1 = 'month';
+    const DAY$1 = 'day';
+    const HOUR$1 = 'hour';
+    const MINUTE$1 = 'minute';
+    const SECOND$1 = 'second';
+    const MILLISECOND$1 = 'millisecond';
 
     var date_utils = {
         parse(date, date_separator = '-', time_separator = /[.:]/) {
-            if (date instanceof Date) {
+            if (date instanceof Date) { 
                 return date;
             }
             if (typeof date === 'string') {
@@ -51,29 +51,35 @@ var Gantt = (function () {
                 }
 
                 if (i === 6) {
-                    return padStart(val + '', 3, '0');
+                    return padStart$1(val + '', 3, '0');
                 }
 
-                return padStart(val + '', 2, '0');
+                return padStart$1(val + '', 2, '0');
             });
             const date_string = `${vals[0]}-${vals[1]}-${vals[2]}`;
             const time_string = `${vals[3]}:${vals[4]}:${vals[5]}.${vals[6]}`;
 
             return date_string + (with_time ? ' ' + time_string : '');
         },
-
-        format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
-            const dateTimeFormat = new Intl.DateTimeFormat(lang, {
+        dateTimeFormatters:{},
+        getDateTimeFormatter: function(lang){
+            if(this.dateTimeFormatters[lang]) return this.dateTimeFormatters[lang];
+            var f = new Intl.DateTimeFormat(lang, {
                 month: 'long'
             });
+            this.dateTimeFormatters[lang] = f;
+            return f;
+        },
+        format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
+            const dateTimeFormat = this.getDateTimeFormatter(lang);
             const month_name = dateTimeFormat.format(date);
             const month_name_capitalized =
                 month_name.charAt(0).toUpperCase() + month_name.slice(1);
 
-            const values = this.get_date_values(date).map(d => padStart(d, 2, 0));
+            const values = this.get_date_values(date).map(d => padStart$1(d, 2, 0));
             const format_map = {
                 YYYY: values[0],
-                MM: padStart(+values[1] + 1, 2, 0),
+                MM: padStart$1(+values[1] + 1, 2, 0),
                 DD: values[2],
                 HH: values[3],
                 mm: values[4],
@@ -103,7 +109,7 @@ var Gantt = (function () {
             return str;
         },
 
-        diff(date_a, date_b, scale = DAY) {
+        diff(date_a, date_b, scale = DAY$1) {
             let milliseconds, seconds, hours, minutes, days, months, years;
 
             milliseconds = date_a - date_b;
@@ -143,26 +149,26 @@ var Gantt = (function () {
         add(date, qty, scale) {
             qty = parseInt(qty, 10);
             const vals = [
-                date.getFullYear() + (scale === YEAR ? qty : 0),
-                date.getMonth() + (scale === MONTH ? qty : 0),
-                date.getDate() + (scale === DAY ? qty : 0),
-                date.getHours() + (scale === HOUR ? qty : 0),
-                date.getMinutes() + (scale === MINUTE ? qty : 0),
-                date.getSeconds() + (scale === SECOND ? qty : 0),
-                date.getMilliseconds() + (scale === MILLISECOND ? qty : 0),
+                date.getFullYear() + (scale === YEAR$1 ? qty : 0),
+                date.getMonth() + (scale === MONTH$1 ? qty : 0),
+                date.getDate() + (scale === DAY$1 ? qty : 0),
+                date.getHours() + (scale === HOUR$1 ? qty : 0),
+                date.getMinutes() + (scale === MINUTE$1 ? qty : 0),
+                date.getSeconds() + (scale === SECOND$1 ? qty : 0),
+                date.getMilliseconds() + (scale === MILLISECOND$1 ? qty : 0),
             ];
             return new Date(...vals);
         },
 
         start_of(date, scale) {
             const scores = {
-                [YEAR]: 6,
-                [MONTH]: 5,
-                [DAY]: 4,
-                [HOUR]: 3,
-                [MINUTE]: 2,
-                [SECOND]: 1,
-                [MILLISECOND]: 0,
+                [YEAR$1]: 6,
+                [MONTH$1]: 5,
+                [DAY$1]: 4,
+                [HOUR$1]: 3,
+                [MINUTE$1]: 2,
+                [SECOND$1]: 1,
+                [MILLISECOND$1]: 0,
             };
 
             function should_reset(_scale) {
@@ -172,12 +178,12 @@ var Gantt = (function () {
 
             const vals = [
                 date.getFullYear(),
-                should_reset(YEAR) ? 0 : date.getMonth(),
-                should_reset(MONTH) ? 1 : date.getDate(),
-                should_reset(DAY) ? 0 : date.getHours(),
-                should_reset(HOUR) ? 0 : date.getMinutes(),
-                should_reset(MINUTE) ? 0 : date.getSeconds(),
-                should_reset(SECOND) ? 0 : date.getMilliseconds(),
+                should_reset(YEAR$1) ? 0 : date.getMonth(),
+                should_reset(MONTH$1) ? 1 : date.getDate(),
+                should_reset(DAY$1) ? 0 : date.getHours(),
+                should_reset(HOUR$1) ? 0 : date.getMinutes(),
+                should_reset(MINUTE$1) ? 0 : date.getSeconds(),
+                should_reset(SECOND$1) ? 0 : date.getMilliseconds(),
             ];
 
             return new Date(...vals);
@@ -215,6 +221,615 @@ var Gantt = (function () {
             }
             return 28;
         },
+    };
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+    function padStart$1(str, targetLength, padString) {
+        str = str + '';
+        targetLength = targetLength >> 0;
+        padString = String(typeof padString !== 'undefined' ? padString : ' ');
+        if (str.length > targetLength) {
+            return String(str);
+        } else {
+            targetLength = targetLength - str.length;
+            if (targetLength > padString.length) {
+                padString += padString.repeat(targetLength / padString.length);
+            }
+            return padString.slice(0, targetLength) + String(str);
+        }
+    }
+
+    /*
+     JavaScript functions for the Fourmilab Calendar Converter
+
+     by John Walker  --  September, MIM
+     http://www.fourmilab.ch/documents/calendar/
+
+     This program is in the public domain.
+     */
+
+    /*  MOD  --  Modulus function which works for non-integers.  */
+
+    function mod(a, b) {
+    	return a - (b * Math.floor(a / b));
+    }
+
+    //  LEAP_GREGORIAN  --  Is a given year in the Gregorian calendar a leap year ?
+
+    function leap_gregorian(year) {
+    	return ((year % 4) == 0) &&
+    		(!(((year % 100) == 0) && ((year % 400) != 0)));
+    }
+
+    //  GREGORIAN_TO_JD  --  Determine Julian day number from Gregorian calendar date
+
+    var GREGORIAN_EPOCH = 1721425.5;
+
+    function gregorian_to_jd(year, month, day) {
+    	return (GREGORIAN_EPOCH - 1) +
+    		(365 * (year - 1)) +
+    		Math.floor((year - 1) / 4) +
+    		(-Math.floor((year - 1) / 100)) +
+    		Math.floor((year - 1) / 400) +
+    		Math.floor((((367 * month) - 362) / 12) +
+    			((month <= 2) ? 0 :
+    				(leap_gregorian(year) ? -1 : -2)
+    				) +
+    			day);
+    }
+
+    //  JD_TO_GREGORIAN  --  Calculate Gregorian calendar date from Julian day
+
+    function jd_to_gregorian(jd) {
+    	var wjd, depoch, quadricent, dqc, cent, dcent, quad, dquad,
+    		yindex, year, yearday, leapadj;
+
+    	wjd = Math.floor(jd - 0.5) + 0.5;
+    	depoch = wjd - GREGORIAN_EPOCH;
+    	quadricent = Math.floor(depoch / 146097);
+    	dqc = mod(depoch, 146097);
+    	cent = Math.floor(dqc / 36524);
+    	dcent = mod(dqc, 36524);
+    	quad = Math.floor(dcent / 1461);
+    	dquad = mod(dcent, 1461);
+    	yindex = Math.floor(dquad / 365);
+    	year = (quadricent * 400) + (cent * 100) + (quad * 4) + yindex;
+    	if (!((cent == 4) || (yindex == 4))) {
+    		year++;
+    	}
+    	yearday = wjd - gregorian_to_jd(year, 1, 1);
+    	leapadj = ((wjd < gregorian_to_jd(year, 3, 1)) ? 0
+    		:
+    		(leap_gregorian(year) ? 1 : 2)
+    		);
+    	var month = Math.floor((((yearday + leapadj) * 12) + 373) / 367),
+    		day = (wjd - gregorian_to_jd(year, month, 1)) + 1;
+
+    	return [year, month, day];
+    }
+
+
+    var PERSIAN_EPOCH = 1948320.5;
+
+    //  PERSIAN_TO_JD  --  Determine Julian day from Persian date
+
+    function persian_to_jd(year, month, day) {
+    	var epbase, epyear;
+
+    	epbase = year - ((year >= 0) ? 474 : 473);
+    	epyear = 474 + mod(epbase, 2820);
+
+    	return day +
+    		((month <= 7) ?
+    			((month - 1) * 31) :
+    			(((month - 1) * 30) + 6)
+    			) +
+    		Math.floor(((epyear * 682) - 110) / 2816) +
+    		(epyear - 1) * 365 +
+    		Math.floor(epbase / 2820) * 1029983 +
+    		(PERSIAN_EPOCH - 1);
+    }
+
+    //  JD_TO_PERSIAN  --  Calculate Persian date from Julian day
+
+    function jd_to_persian(jd) {
+    	var year, month, day, depoch, cycle, cyear, ycycle,
+    		aux1, aux2, yday;
+
+
+    	jd = Math.floor(jd) + 0.5;
+
+    	depoch = jd - persian_to_jd(475, 1, 1);
+    	cycle = Math.floor(depoch / 1029983);
+    	cyear = mod(depoch, 1029983);
+    	if (cyear == 1029982) {
+    		ycycle = 2820;
+    	} else {
+    		aux1 = Math.floor(cyear / 366);
+    		aux2 = mod(cyear, 366);
+    		ycycle = Math.floor(((2134 * aux1) + (2816 * aux2) + 2815) / 1028522) +
+    			aux1 + 1;
+    	}
+    	year = ycycle + (2820 * cycle) + 474;
+    	if (year <= 0) {
+    		year--;
+    	}
+    	yday = (jd - persian_to_jd(year, 1, 1)) + 1;
+    	month = (yday <= 186) ? Math.ceil(yday / 31) : Math.ceil((yday - 6) / 30);
+    	day = (jd - persian_to_jd(year, month, 1)) + 1;
+    	return [year, month, day];
+    }
+    // Cache original `Date` class. User may set window.Date = JDate
+    var Date$1 = window['Date'];
+
+    function digits_fa2en(text) {
+    	return text.replace(/[۰-۹]/g, function (d) {
+    		return String.fromCharCode(d.charCodeAt(0) - 1728);
+    	});
+    }
+    function pad2(number) {
+    	return number < 10 ? '0' + number: number;
+    }
+    function persian_to_jd_fixed(year, month, day) {
+    	/*
+    	Fix `persian_to_jd` so we can use negative or large values for month, e.g:
+    	persian_to_jd_fixed(1393, 26, 1) == persian_to_jd_fixed(1395, 2, 1)
+    	persian_to_jd_fixed(1393, -2, 1) == persian_to_jd_fixed(1392, 10, 1)
+    	 */
+    	if (month > 12 || month <= 0) {
+    		var yearDiff = Math.floor((month - 1) / 12);
+    		year += yearDiff;
+    		month = month - yearDiff * 12;
+    	}
+    	return persian_to_jd(year, month, day);
+    }
+    function parseDate(string, convertToPersian) {
+    	/*
+    	 http://en.wikipedia.org/wiki/ISO_8601
+    	 http://dygraphs.com/date-formats.html
+    	 https://github.com/arshaw/xdate/blob/master/src/xdate.js#L414
+    	 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse
+    	 tests:
+    	 +parseDate('2014') == +new Date('2014')
+    	 +parseDate('2014-2') == +new Date('2014-02')
+    	 +parseDate('2014-2-3') == +new Date('2014-02-03')
+    	 +parseDate('2014-02-03 12:11') == +new Date('2014/02/03 12:11')
+    	 +parseDate('2014-02-03T12:11') == +new Date('2014/02/03 12:11')
+    	 parseDate('2014/02/03T12:11') == undefined
+    	 +parseDate('2014/02/03 12:11:10.2') == +new Date('2014/02/03 12:11:10') + 200
+    	 +parseDate('2014/02/03 12:11:10.02') == +new Date('2014/02/03 12:11:10') + 20
+    	 parseDate('2014/02/03 12:11:10Z') == undefined
+    	 +parseDate('2014-02-03T12:11:10Z') == +new Date('2014-02-03T12:11:10Z')
+    	 +parseDate('2014-02-03T12:11:10+0000') == +new Date('2014-02-03T12:11:10Z')
+    	 +parseDate('2014-02-03T10:41:10+0130') == +new Date('2014-02-03T12:11:10Z')
+    	 */
+    	var re = /^(\d|\d\d|\d\d\d\d)(?:([-\/])(\d{1,2})(?:\2(\d|\d\d|\d\d\d\d))?)?(([ T])(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(Z|([+-])(\d{2})(?::?(\d{2}))?)?)?$/,
+    		match = re.exec(string);
+    	// re.exec('2012-4-5 01:23:10.1111+0130')
+    	//  0                              1       2    3    4    5                      6    7     8     9     10      11       12   13    14
+    	// ["2012-4-5 01:23:10.1111+0330", "2012", "-", "4", "5", " 01:23:10.1111+0130", " ", "01", "23", "10", "1111", "+0330", "+", "03", "30"]
+    	if (!match) return;
+    	var separator = match[2],
+    		timeSeparator = match[6],
+    		year = +match[1],
+    		month = +match[3] || 1,
+    		day = +match[4] || 1,
+    		isISO = (separator != '/') && (match[6] != ' '),
+    		hour = +match[7] || 0,
+    		minute = +match[8] || 0,
+    		seconds = +match[9] || 0,
+    		millis = +('0.' + (match[10] || '0')) * 1000,
+    		tz = match[11],
+    		isNonLocal = isISO && (tz || !match[5]),
+    		tzOffset = (match[12] == '-' ? -1 : 1) * ((+match[13] || 0) * 60 + (+match[14] || 0));
+    	// timezone should be empty if dates are with / (2012/1/10)
+    	if ((tz || timeSeparator == 'T') && !isISO) return;
+    	// one and only-one of year/day should be 4-chars (2012/1/10 vs 10/1/2012)
+    	if ((day >= 1000) == (year >= 1000)) return;
+    	if (day >= 1000) {
+    		// year and day only can be swapped if using '/' as separator
+    		if (separator == '-') return;
+    		day = +match[1];
+    		year = day;
+    	}
+    	if (convertToPersian) {
+    		var persian = jd_to_gregorian(persian_to_jd_fixed(year, month, day));
+    		year = persian[0];
+    		month = persian[1];
+    		day = persian[2];
+    	}
+    	var date = new Date$1(year, month - 1, day, hour, minute, seconds, millis);
+    	if (isNonLocal) {
+    		date.setUTCMinutes(date.getUTCMinutes() - date.getTimezoneOffset() + tzOffset);
+    	}
+    	return date;
+    }
+
+    /**
+     * @param {Object=} a ,may have different types for different semantics: 1) string: parse a date
+     * 		2) Date object: clone a date object  3) number: value for year
+     * @param {Number=} month
+     * @param {Number=} day
+     * @param {Number=} hour
+     * @param {Number=} minute
+     * @param {Number=} second
+     * @param {Number=} millisecond
+     * @constructor
+     * @extends {Date}
+     */
+    function JDate(a, month, day, hour, minute, second, millisecond) {
+    	if (typeof a == 'string') {
+    		this._d = parseDate(digits_fa2en(a), true);
+    		if (!this._d) throw 'Cannot parse date string'
+    	} else if (arguments.length == 0)
+    		this._d = new Date$1();
+    	else if (arguments.length == 1) {
+    		this._d = new Date$1((a instanceof JDate)?a._d:a);
+    	} else {
+    		var persian = jd_to_gregorian(persian_to_jd_fixed(a, (month || 0) + 1, day || 1));
+    		this._d = new Date$1(persian[0], persian[1] - 1, persian[2], hour || 0, minute || 0, second || 0, millisecond || 0);
+    	}
+    	this['_date'] = this._d;
+    	this._cached_date_ts = null;
+    	this._cached_date = [0, 0, 0];
+    	this._cached_utc_date_ts = null;
+    	this._cached_utc_date = [0, 0, 0];
+    }
+
+    JDate.prototype = {
+    	/**
+    	 * returns current Jalali date representation of internal date object, eg. [1394, 12, 5]
+    	 * Caches the converted Jalali date for improving performance
+    	 * @returns {Array}
+    	 */
+    	_persianDate: function () {
+    		if (this._cached_date_ts != +this._d) {
+    			this._cached_date_ts = +this._d;
+    			this._cached_date = jd_to_persian(gregorian_to_jd(this._d.getFullYear(), this._d.getMonth() + 1, this._d.getDate()));
+    		}
+    		return this._cached_date
+    	},
+    	/**
+    	 * Exactly like `_persianDate` but for UTC value of date
+    	 */
+    	_persianUTCDate: function () {
+    		if (this._cached_utc_date_ts != +this._d) {
+    			this._cached_utc_date_ts = +this._d;
+    			this._cached_utc_date = jd_to_persian(gregorian_to_jd(this._d.getUTCFullYear(), this._d.getUTCMonth() + 1, this._d.getUTCDate()));
+    		}
+    		return this._cached_utc_date
+    	},
+    	/**
+    	 *
+    	 * @param which , which component of date to change? 0 for year, 1 for month, 2 for day
+    	 * @param value , value of specified component
+    	 * @param {Number=} dayValue , change the day along-side specified component, used for setMonth(month[, dayValue])
+    	 */
+    	_setPersianDate: function (which, value, dayValue) {
+    		var persian = this._persianDate();
+    		persian[which] = value;
+    		if (dayValue !== undefined) {
+    			persian[2] = dayValue;
+    		}
+    		var new_date = jd_to_gregorian(persian_to_jd_fixed(persian[0], persian[1], persian[2]));
+    		this._d.setFullYear(new_date[0]);
+    		this._d.setMonth(new_date[1] - 1, new_date[2]);
+    	},
+    	/**
+    	 * Exactly like `_setPersianDate`, but operates UTC value
+    	 */
+    	_setUTCPersianDate: function (which, value, dayValue) {
+    		var persian = this._persianUTCDate();
+    		if (dayValue !== undefined) {
+    			persian[2] = dayValue;
+    		}
+    		persian[which] = value;
+    		var new_date = jd_to_gregorian(persian_to_jd_fixed(persian[0], persian[1], persian[2]));
+    		this._d.setUTCFullYear(new_date[0]);
+    		this._d.setUTCMonth(new_date[1] - 1, new_date[2]);
+    	}
+    };
+    // All date getter methods
+    JDate.prototype['getDate'] = function () {
+    	return this._persianDate()[2]
+    };
+    JDate.prototype['getMonth'] = function () {
+    	return this._persianDate()[1] - 1
+    };
+    JDate.prototype['getFullYear'] = function () {
+    	return this._persianDate()[0]
+    };
+    JDate.prototype['getUTCDate'] = function () {
+    	return this._persianUTCDate()[2]
+    };
+    JDate.prototype['getUTCMonth'] = function () {
+    	return this._persianUTCDate()[1] - 1
+    };
+    JDate.prototype['getUTCFullYear'] = function () {
+    	return this._persianUTCDate()[0]
+    };
+    // All date setter methods
+    JDate.prototype['setDate'] = function (dayValue) {
+    	this._setPersianDate(2, dayValue);
+    };
+    JDate.prototype['setFullYear'] = function (yearValue) {
+    	this._setPersianDate(0, yearValue);
+    };
+    JDate.prototype['setMonth'] = function (monthValue, dayValue) {
+    	this._setPersianDate(1, monthValue + 1, dayValue);
+    };
+    JDate.prototype['setUTCDate'] = function (dayValue) {
+    	this._setUTCPersianDate(2, dayValue);
+    };
+    JDate.prototype['setUTCFullYear'] = function (yearValue) {
+    	this._setUTCPersianDate(0, yearValue);
+    };
+    JDate.prototype['setUTCMonth'] = function (monthValue, dayValue) {
+    	this._setUTCPersianDate(1, monthValue + 1, dayValue);
+    };
+    /**
+     * The Date.toLocaleString() method can return a string with a language sensitive representation of this date,
+     * so we change it to return date in Jalali calendar
+     */
+    JDate.prototype['toLocaleString'] = function () {
+    	return this.getFullYear() + '/' + pad2(this.getMonth() + 1) + '/' + pad2(this.getDate()) + ' ' +
+    		pad2(this.getHours()) + ':' + pad2(this.getMinutes()) + ':' + pad2(this.getSeconds());
+    };
+    /**
+     * The Date.now() method returns the number of milliseconds elapsed since 1 January 1970 00:00:00 UTC.
+     */
+    JDate['now'] = Date$1.now;
+    /**
+     * parses a string representation of a date, and returns the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+     */
+    JDate['parse'] = function (string) {
+    	new JDate(string)['getTime']();
+    };
+    /**
+     * The Date.UTC() method accepts the same parameters as the longest form of the constructor, and returns the number of
+     * milliseconds in a Date object since January 1, 1970, 00:00:00, universal time.
+     */
+    JDate['UTC'] = function (year, month, date, hours, minutes, seconds, milliseconds) {
+    	var d = jd_to_gregorian(persian_to_jd_fixed(year, month + 1, date || 1));
+    	return Date$1.UTC(d[0], d[1] - 1, d[2], hours || 0, minutes || 0, seconds || 0, milliseconds || 0);
+    };
+    // Proxy all time-related methods to internal date object
+    var i, dateProps = ('getHours getMilliseconds getMinutes getSeconds getTime getUTCDay getUTCHours ' +
+    		'getTimezoneOffset getUTCMilliseconds getUTCMinutes getUTCSeconds setHours setMilliseconds setMinutes ' +
+    		'setSeconds setTime setUTCHours setUTCMilliseconds setUTCMinutes setUTCSeconds toDateString toISOString ' +
+    		'toJSON toString toLocaleDateString toLocaleTimeString toTimeString toUTCString valueOf getDay')
+    			.split(' '),
+    	createWrapper = function (k) {
+    		return function () {
+    			return this._d[k].apply(this._d, arguments)
+    		}
+    	};
+
+    for (i = 0; i < dateProps.length; i++)
+    	JDate.prototype[dateProps[i]] = createWrapper(dateProps[i]);
+    // Export `JDate` class to global scope
+    window['JDate'] = JDate;
+
+    const YEAR = 'year';
+    const MONTH = 'month';
+    const DAY = 'day';
+    const HOUR = 'hour';
+    const MINUTE = 'minute';
+    const SECOND = 'second';
+    const MILLISECOND = 'millisecond';
+
+    var date_utils_jalali = {
+        parse(date, date_separator = '-', time_separator = /[.:]/) {
+            if (date instanceof Date) { 
+                return new JDate(date);
+            }
+            if (typeof date === 'string') {
+                var jd= new JDate(date);
+                jd.setHours(0,0,0,0);
+                return jd;
+            }
+        },
+
+        to_string(date, with_time = false) {
+            if (!(date instanceof Date)) {
+                throw new TypeError('Invalid argument type');
+            }
+            const vals = this.get_date_values(date).map((val, i) => {
+                if (i === 1) {
+                    // add 1 for month
+                    val = val + 1;
+                }
+
+                if (i === 6) {
+                    return padStart(val + '', 3, '0');
+                }
+
+                return padStart(val + '', 2, '0');
+            });
+            const date_string = `${vals[0]}-${vals[1]}-${vals[2]}`;
+            const time_string = `${vals[3]}:${vals[4]}:${vals[5]}.${vals[6]}`;
+
+            return date_string + (with_time ? ' ' + time_string : '');
+        },
+        dateTimeFormatters:{},
+        getDateTimeFormatter: function(lang){
+            if(this.dateTimeFormatters[lang]) return this.dateTimeFormatters[lang];
+            var f = new Intl.DateTimeFormat(lang, {
+                month: 'long'
+            });
+            this.dateTimeFormatters[lang] = f;
+            return f;
+        },
+        format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
+            const dateTimeFormat = this.getDateTimeFormatter(lang);
+            const month_name = dateTimeFormat.format(date._d);
+            const month_name_capitalized =
+                month_name.charAt(0).toUpperCase() + month_name.slice(1);
+
+            const values = this.get_date_values(date).map(d => padStart(d, 2, 0));
+            const format_map = {
+                YYYY: values[0],
+                MM: padStart(+values[1] + 1, 2, 0),
+                DD: values[2],
+                HH: values[3],
+                mm: values[4],
+                ss: values[5],
+                SSS: values[6],
+                D: values[2],
+                MMMM: month_name_capitalized,
+                MMM: month_name_capitalized,
+            };
+
+            let str = format_string;
+            const formatted_values = [];
+
+            Object.keys(format_map)
+                .sort((a, b) => b.length - a.length) // big string first
+                .forEach((key) => {
+                    if (str.includes(key)) {
+                        str = str.replace(key, `$${formatted_values.length}`);
+                        formatted_values.push(format_map[key]);
+                    }
+                });
+
+            formatted_values.forEach((value, i) => {
+                str = str.replace(`$${i}`, value);
+            });
+
+            return str;
+        },
+
+        diff(date_a, date_b, scale = DAY) {
+            var d_a = date_a;
+            var d_b = date_b;
+            if(d_a instanceof JDate){
+                d_a = d_a._d;
+            } 
+            if(d_b instanceof JDate){
+                d_b = d_b._d;
+            } 
+            let milliseconds, seconds, hours, minutes, days, months, years;
+
+            milliseconds = d_a - d_b;
+            seconds = milliseconds / 1000;
+            minutes = seconds / 60;
+            hours = minutes / 60;
+            days = hours / 24;
+            months = days / 30;
+            years = months / 12;
+
+            if (!scale.endsWith('s')) {
+                scale += 's';
+            }
+
+            return Math.floor(
+                {
+                    milliseconds,
+                    seconds,
+                    minutes,
+                    hours,
+                    days,
+                    months,
+                    years,
+                }[scale]
+            );
+        },
+
+        today() {
+            const vals = this.get_date_values(new JDate()).slice(0, 3);
+            var jd = new JDate(...vals);
+            jd.setHours(0,0,0,0);
+            return jd;
+        },
+
+        now() {
+            return new JDate();
+        },
+
+        add(date, qty, scale) {
+            qty = parseInt(qty, 10);
+            const vals = [
+                date.getFullYear() + (scale === YEAR ? qty : 0),
+                date.getMonth() + (scale === MONTH ? qty : 0),
+                date.getDate() + (scale === DAY ? qty : 0),
+                date.getHours() + (scale === HOUR ? qty : 0),
+                date.getMinutes() + (scale === MINUTE ? qty : 0),
+                date.getSeconds() + (scale === SECOND ? qty : 0),
+                date.getMilliseconds() + (scale === MILLISECOND ? qty : 0),
+            ];
+            return new JDate(...vals);
+        },
+
+        start_of(date, scale) {
+            const scores = {
+                [YEAR]: 6,
+                [MONTH]: 5,
+                [DAY]: 4,
+                [HOUR]: 3,
+                [MINUTE]: 2,
+                [SECOND]: 1,
+                [MILLISECOND]: 0,
+            };
+
+            function should_reset(_scale) {
+                const max_score = scores[scale];
+                return scores[_scale] <= max_score;
+            }
+
+            const vals = [
+                date.getFullYear(),
+                should_reset(YEAR) ? 0 : date.getMonth(),
+                should_reset(MONTH) ? 1 : date.getDate(),
+                should_reset(DAY) ? 0 : date.getHours(),
+                should_reset(HOUR) ? 0 : date.getMinutes(),
+                should_reset(MINUTE) ? 0 : date.getSeconds(),
+                should_reset(SECOND) ? 0 : date.getMilliseconds(),
+            ];
+
+            var jd= new JDate(...vals);
+            jd.setHours(0,0,0,0);
+            return jd;
+        },
+
+        clone(date) {
+            var jd= new JDate(...this.get_date_values(date));
+            jd.setHours(0,0,0,0);
+            return jd;
+        },
+
+        get_date_values(date) {
+            return [
+                date.getFullYear(),
+                date.getMonth(),
+                date.getDate(),
+                date.getHours(),
+                date.getMinutes(),
+                date.getSeconds(),
+                date.getMilliseconds(),
+            ];
+        },
+
+        get_days_in_month(date) {
+            const no_of_days = [31,31,31,31,31,31,30,30,30,30,30];
+
+            const month = date.getMonth();
+
+            if (month !== 12) {
+                return no_of_days[month];
+            }
+
+            // Esfand
+            const year = date.getFullYear();
+            if (this.isLeapYearJalali(year)) {
+                return 30;
+            }
+            return 29;
+        },
+        isLeapYearJalali(year) {
+            const matches = [1, 5, 9, 13, 17, 22, 26, 30];
+            const modulus = year % 33;
+            return matches.includes(modulus)
+         }
     };
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
@@ -1023,19 +1638,21 @@ var Gantt = (function () {
                 popup_trigger: 'click',
                 custom_popup_html: null,
                 language: 'en',
+                calendar: 'gregorian'
             };
             this.options = Object.assign({}, default_options, options);
+            this.my_date_utils = this.options.calendar == "jalali"? date_utils_jalali: date_utils;
         }
 
         setup_tasks(tasks) {
             // prepare tasks
             this.tasks = tasks.map((task, i) => {
                 // convert to Date objects
-                task._start = date_utils.parse(task.start);
-                task._end = date_utils.parse(task.end);
+                task._start = this.my_date_utils.parse(task.start);
+                task._end = this.my_date_utils.parse(task.end);
 
                 // make task invalid if duration too large
-                if (date_utils.diff(task._end, task._start, 'year') > 10) {
+                if (this.my_date_utils.diff(task._end, task._start, 'year') > 10) {
                     task.end = null;
                 }
 
@@ -1044,24 +1661,24 @@ var Gantt = (function () {
 
                 // invalid dates
                 if (!task.start && !task.end) {
-                    const today = date_utils.today();
+                    const today = this.my_date_utils.today();
                     task._start = today;
-                    task._end = date_utils.add(today, 2, 'day');
+                    task._end = this.my_date_utils.add(today, 2, 'day');
                 }
 
                 if (!task.start && task.end) {
-                    task._start = date_utils.add(task._end, -2, 'day');
+                    task._start = this.my_date_utils.add(task._end, -2, 'day');
                 }
 
                 if (task.start && !task.end) {
-                    task._end = date_utils.add(task._start, 2, 'day');
+                    task._end = this.my_date_utils.add(task._start, 2, 'day');
                 }
 
                 // if hours is not set, assume the last day is full day
                 // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-                const task_end_values = date_utils.get_date_values(task._end);
+                const task_end_values = this.my_date_utils.get_date_values(task._end);
                 if (task_end_values.slice(3).every((d) => d === 0)) {
-                    task._end = date_utils.add(task._end, 24, 'hour');
+                    task._end = this.my_date_utils.add(task._end, 24, 'hour');
                 }
 
                 // invalid flag
@@ -1157,22 +1774,22 @@ var Gantt = (function () {
                 }
             }
 
-            this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
-            this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
+            this.gantt_start = this.my_date_utils.start_of(this.gantt_start, 'day');
+            this.gantt_end = this.my_date_utils.start_of(this.gantt_end, 'day');
 
             // add date padding on both sides
             if (this.view_is([VIEW_MODE.QUARTER_DAY, VIEW_MODE.HALF_DAY])) {
-                this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
-                this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
+                this.gantt_start = this.my_date_utils.add(this.gantt_start, -7, 'day');
+                this.gantt_end = this.my_date_utils.add(this.gantt_end, 7, 'day');
             } else if (this.view_is(VIEW_MODE.MONTH)) {
-                this.gantt_start = date_utils.start_of(this.gantt_start, 'year');
-                this.gantt_end = date_utils.add(this.gantt_end, 1, 'year');
+                this.gantt_start = this.my_date_utils.start_of(this.gantt_start, 'year');
+                this.gantt_end = this.my_date_utils.add(this.gantt_end, 1, 'year');
             } else if (this.view_is(VIEW_MODE.YEAR)) {
-                this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
-                this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
+                this.gantt_start = this.my_date_utils.add(this.gantt_start, -2, 'year');
+                this.gantt_end = this.my_date_utils.add(this.gantt_end, 2, 'year');
             } else {
-                this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
-                this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+                this.gantt_start = this.my_date_utils.add(this.gantt_start, -1, 'month');
+                this.gantt_end = this.my_date_utils.add(this.gantt_end, 1, 'month');
             }
         }
 
@@ -1182,14 +1799,14 @@ var Gantt = (function () {
 
             while (cur_date === null || cur_date < this.gantt_end) {
                 if (!cur_date) {
-                    cur_date = date_utils.clone(this.gantt_start);
+                    cur_date = this.my_date_utils.clone(this.gantt_start);
                 } else {
                     if (this.view_is(VIEW_MODE.YEAR)) {
-                        cur_date = date_utils.add(cur_date, 1, 'year');
+                        cur_date = this.my_date_utils.add(cur_date, 1, 'year');
                     } else if (this.view_is(VIEW_MODE.MONTH)) {
-                        cur_date = date_utils.add(cur_date, 1, 'month');
+                        cur_date = this.my_date_utils.add(cur_date, 1, 'month');
                     } else {
-                        cur_date = date_utils.add(
+                        cur_date = this.my_date_utils.add(
                             cur_date,
                             this.options.step,
                             'hour'
@@ -1339,7 +1956,7 @@ var Gantt = (function () {
 
                 if (this.view_is(VIEW_MODE.MONTH)) {
                     tick_x +=
-                        (date_utils.get_days_in_month(date) *
+                        (this.my_date_utils.get_days_in_month(date) *
                             this.options.column_width) /
                         30;
                 } else {
@@ -1352,7 +1969,7 @@ var Gantt = (function () {
             // highlight today's date
             if (this.view_is(VIEW_MODE.DAY)) {
                 const x =
-                    (date_utils.diff(date_utils.today(), this.gantt_start, 'hour') /
+                    (this.my_date_utils.diff(this.my_date_utils.today(), this.gantt_start, 'hour') /
                         this.options.step) *
                     this.options.column_width;
                 const y = 0;
@@ -1416,58 +2033,58 @@ var Gantt = (function () {
 
         get_date_info(date, last_date, i) {
             if (!last_date) {
-                last_date = date_utils.add(date, 1, 'year');
+                last_date = this.my_date_utils.add(date, 1, 'year');
             }
             const date_text = {
-                'Quarter Day_lower': date_utils.format(
+                'Quarter Day_lower': this.my_date_utils.format(
                     date,
                     'HH',
                     this.options.language
                 ),
-                'Half Day_lower': date_utils.format(
+                'Half Day_lower': this.my_date_utils.format(
                     date,
                     'HH',
                     this.options.language
                 ),
                 Day_lower:
                     date.getDate() !== last_date.getDate()
-                        ? date_utils.format(date, 'D', this.options.language)
+                        ? this.my_date_utils.format(date, 'D', this.options.language)
                         : '',
                 Week_lower:
                     date.getMonth() !== last_date.getMonth()
-                        ? date_utils.format(date, 'D MMM', this.options.language)
-                        : date_utils.format(date, 'D', this.options.language),
-                Month_lower: date_utils.format(date, 'MMMM', this.options.language),
-                Year_lower: date_utils.format(date, 'YYYY', this.options.language),
+                        ? this.my_date_utils.format(date, 'D MMM', this.options.language)
+                        : this.my_date_utils.format(date, 'D', this.options.language),
+                Month_lower: this.my_date_utils.format(date, 'MMMM', this.options.language),
+                Year_lower: this.my_date_utils.format(date, 'YYYY', this.options.language),
                 'Quarter Day_upper':
                     date.getDate() !== last_date.getDate()
-                        ? date_utils.format(date, 'D MMM', this.options.language)
+                        ? this.my_date_utils.format(date, 'D MMM', this.options.language)
                         : '',
                 'Half Day_upper':
                     date.getDate() !== last_date.getDate()
                         ? date.getMonth() !== last_date.getMonth()
-                            ? date_utils.format(
+                            ? this.my_date_utils.format(
                                   date,
                                   'D MMM',
                                   this.options.language
                               )
-                            : date_utils.format(date, 'D', this.options.language)
+                            : this.my_date_utils.format(date, 'D', this.options.language)
                         : '',
                 Day_upper:
                     date.getMonth() !== last_date.getMonth()
-                        ? date_utils.format(date, 'MMMM', this.options.language)
+                        ? this.my_date_utils.format(date, 'MMMM', this.options.language)
                         : '',
                 Week_upper:
                     date.getMonth() !== last_date.getMonth()
-                        ? date_utils.format(date, 'MMMM', this.options.language)
+                        ? this.my_date_utils.format(date, 'MMMM', this.options.language)
                         : '',
                 Month_upper:
                     date.getFullYear() !== last_date.getFullYear()
-                        ? date_utils.format(date, 'YYYY', this.options.language)
+                        ? this.my_date_utils.format(date, 'YYYY', this.options.language)
                         : '',
                 Year_upper:
                     date.getFullYear() !== last_date.getFullYear()
-                        ? date_utils.format(date, 'YYYY', this.options.language)
+                        ? this.my_date_utils.format(date, 'YYYY', this.options.language)
                         : '',
             };
 
@@ -1556,7 +2173,7 @@ var Gantt = (function () {
             const parent_element = this.$svg.parentElement;
             if (!parent_element) return;
 
-            const hours_before_first_task = date_utils.diff(
+            const hours_before_first_task = this.my_date_utils.diff(
                 this.get_oldest_starting_date(),
                 this.gantt_start,
                 'hour'

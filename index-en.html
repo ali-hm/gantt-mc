@@ -31,12 +31,12 @@
 	<script>
 		var tasks = [
 			{
-				start: '1402-08-01',
-				end: '1402-08-08',
+				start: '2018-10-01',
+				end: '2018-10-08',
 				name: 'Redesign website',
 				id: "Task 0",
 				progress: 20
-			}/*,
+			},
 			{
 				start: '2018-10-03',
 				end: '2018-10-06',
@@ -84,7 +84,7 @@
 				name: 'Long term task',
 				id: "Task 6",
 				progress: 0
-			}*/
+			}
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: task => {
@@ -99,9 +99,8 @@
 			on_view_change: (mode) => {
 				console.log(mode);
 			},
-			view_mode: 'Day',
-			language: 'fa',
-			calendar: 'jalali'
+			view_mode: 'Month',
+			language: 'en'
 		});
 		console.log(gantt_chart);
 	</script>

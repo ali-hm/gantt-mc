@@ -1,6 +1,6 @@
 <div align="center">
     <img src="https://github.com/frappe/design/blob/master/logos/logo-2019/frappe-gantt-logo.png" height="128">
-    <h2>Frappe Gantt</h2>
+    <h2>Frappe Gantt - Multi calendar (Gregorian - Jalali) </h2>
     <p align="center">
         <p>A simple, interactive, modern gantt chart library for the web</p>
         <a href="https://frappe.github.io/gantt">

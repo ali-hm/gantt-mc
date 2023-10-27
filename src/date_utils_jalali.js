@@ -1,3 +1,4 @@
+import JDate from './jdate/jdate-class';
 const YEAR = 'year';
 const MONTH = 'month';
 const DAY = 'day';
@@ -9,31 +10,12 @@ const MILLISECOND = 'millisecond';
 export default {
     parse(date, date_separator = '-', time_separator = /[.:]/) {
         if (date instanceof Date) { 
-            return date;
+            return new JDate(date);
         }
         if (typeof date === 'string') {
-            let date_parts, time_parts;
-            const parts = date.split(' ');
-
-            date_parts = parts[0]
-                .split(date_separator)
-                .map((val) => parseInt(val, 10));
-            time_parts = parts[1] && parts[1].split(time_separator);
-
-            // month is 0 indexed
-            date_parts[1] = date_parts[1] - 1;
-
-            let vals = date_parts;
-
-            if (time_parts && time_parts.length) {
-                if (time_parts.length == 4) {
-                    time_parts[3] = '0.' + time_parts[3];
-                    time_parts[3] = parseFloat(time_parts[3]) * 1000;
-                }
-                vals = vals.concat(time_parts);
-            }
-
-            return new Date(...vals);
+            var jd= new JDate(date);
+            jd.setHours(0,0,0,0);
+            return jd;
         }
     },
 
@@ -69,7 +51,7 @@ export default {
     },
     format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'en') {
         const dateTimeFormat = this.getDateTimeFormatter(lang);
-        const month_name = dateTimeFormat.format(date);
+        const month_name = dateTimeFormat.format(date._d);
         const month_name_capitalized =
             month_name.charAt(0).toUpperCase() + month_name.slice(1);
 
@@ -107,9 +89,17 @@ export default {
     },
 
     diff(date_a, date_b, scale = DAY) {
+        var d_a = date_a;
+        var d_b = date_b;
+        if(d_a instanceof JDate){
+            d_a = d_a._d;
+        } 
+        if(d_b instanceof JDate){
+            d_b = d_b._d;
+        } 
         let milliseconds, seconds, hours, minutes, days, months, years;
 
-        milliseconds = date_a - date_b;
+        milliseconds = d_a - d_b;
         seconds = milliseconds / 1000;
         minutes = seconds / 60;
         hours = minutes / 60;
@@ -135,12 +125,14 @@ export default {
     },
 
     today() {
-        const vals = this.get_date_values(new Date()).slice(0, 3);
-        return new Date(...vals);
+        const vals = this.get_date_values(new JDate()).slice(0, 3);
+        var jd = new JDate(...vals);
+        jd.setHours(0,0,0,0);
+        return jd;
     },
 
     now() {
-        return new Date();
+        return new JDate();
     },
 
     add(date, qty, scale) {
@@ -154,7 +146,7 @@ export default {
             date.getSeconds() + (scale === SECOND ? qty : 0),
             date.getMilliseconds() + (scale === MILLISECOND ? qty : 0),
         ];
-        return new Date(...vals);
+        return new JDate(...vals);
     },
 
     start_of(date, scale) {
@@ -183,11 +175,15 @@ export default {
             should_reset(SECOND) ? 0 : date.getMilliseconds(),
         ];
 
-        return new Date(...vals);
+        var jd= new JDate(...vals);
+        jd.setHours(0,0,0,0);
+        return jd;
     },
 
     clone(date) {
-        return new Date(...this.get_date_values(date));
+        var jd= new JDate(...this.get_date_values(date));
+        jd.setHours(0,0,0,0);
+        return jd;
     },
 
     get_date_values(date) {
@@ -203,21 +199,26 @@ export default {
     },
 
     get_days_in_month(date) {
-        const no_of_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        const no_of_days = [31,31,31,31,31,31,30,30,30,30,30];
 
         const month = date.getMonth();
 
-        if (month !== 1) {
+        if (month !== 12) {
             return no_of_days[month];
         }
 
-        // Feb
+        // Esfand
         const year = date.getFullYear();
-        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
-            return 29;
+        if (this.isLeapYearJalali(year)) {
+            return 30;
         }
-        return 28;
+        return 29;
     },
+    isLeapYearJalali(year) {
+        const matches = [1, 5, 9, 13, 17, 22, 26, 30];
+        const modulus = year % 33;
+        return matches.includes(modulus)
+     }
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
